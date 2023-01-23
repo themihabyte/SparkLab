@@ -1,0 +1,29 @@
+services:
+  spark-sumbit:
+    build:
+      context: "./docker"
+      dockerfile: "./Dockerfile"
+    image: cluster-apache-spark:3.3.0
+    entrypoint: >
+        /opt/spark/bin/spark-submit
+        --master "spark://spark-master:7077"
+        --conf "spark.driver.host"=spark-sumbit
+        --conf "spark.driver.bindAddress"="0.0.0.0"
+        --conf "spark.driver.port"=7001
+        --conf "spark.driver.blockManager.port"=7002
+        --packages "org.mongodb.spark:mongo-spark-connector:10.0.5"
+        --deploy-mode "client"
+        /apps/task.py
+    volumes:
+      - "./:/apps"
+    networks:
+      - lab3-mongodb
+      - lab5-spark
+
+networks:
+  lab3-mongodb:
+    name: task-1_default
+    external: true
+  lab5-spark:
+    name: lab5-spark_default
+    external: true

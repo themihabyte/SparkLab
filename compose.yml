@@ -1,0 +1,41 @@
+services:
+  spark-master:
+    build:
+      context: "./docker"
+      dockerfile: "./Dockerfile"
+    image: cluster-apache-spark:3.3.0
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+    networks:
+      - default
+
+  spark-worker:
+    build:
+      context: "./docker"
+      dockerfile: "./Dockerfile"
+    image: cluster-apache-spark:3.3.0
+    ports:
+      - "9091:8080"
+      - "7000:7000"
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=4
+      - SPARK_WORKER_MEMORY=4G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker
+    networks:
+      - default
+      - lab3-mongodb
+
+networks:
+  lab3-mongodb:
+    name: task-1_default
+    external: true
